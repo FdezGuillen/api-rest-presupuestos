@@ -1,0 +1,239 @@
+var mongoose = require('mongoose');
+var path = require('path');
+var appRootDir = require('app-root-dir').get();
+
+const crypto = require("crypto");
+const bcrypt = require("bcrypt");
+const dotenv = require('dotenv');
+var Usuario = require(path.join(appRootDir, "Models")).Usuario;
+var TokenRecuperacion = require(path.join(appRootDir, "Models")).TokenRecuperacion;
+dotenv.config();
+const bcryptSalt = process.env.BCRYPT_SALT;
+const clientURL = process.env.CLIENT_URL;
+
+var UsuarioService = {
+
+    login(email, password) {
+        return Usuario.findOne({
+            correo_electronico: email,
+        }).then((usuario) => {
+            return bcrypt.compare(password, usuario.password).then((esValido) => {
+                if (esValido !== true) {
+                    throw new Error("Contraseña incorrecta");
+                }
+                return usuario;
+            })
+        }).catch((err) => {
+            if (typeof err.message !== "undefined" && err.message === "Contraseña incorrecta") {
+                return err.message;
+            } else if (err.message !== "undefined") {
+                return "Datos de inicio de sesión incorrectos";
+            }
+            return "error";
+        })
+    },
+
+    recuperarCuenta: async function (email) {
+        try {
+
+            let usuario = await Usuario.findOne({
+                correo_electronico: email,
+            });
+            let token = TokenRecuperacion.findOne({
+                user_id: usuario._id
+            })
+            await token.deleteOne();
+            let resetToken = crypto.randomBytes(32).toString("hex");
+            const hash = await bcrypt.hash(resetToken, Number(bcryptSalt));
+
+            await new TokenRecuperacion({
+                user_id: usuario._id,
+                token: hash,
+                createdAt: Date.now(),
+            }).save();
+            // const link = `http://localhost://8080/passwordReset?token=${resetToken}&id=${usuario._id}`;
+            const link = `${clientURL}/passwordReset?token=${resetToken}&id=${usuario._id}`;
+
+            return {
+                correo_electronico: usuario.correo_electronico,
+                username: usuario.username,
+                link: link
+            };
+        } catch (err) {
+            return "error";
+        }
+
+    },
+
+    resetearPassword: async function (userId, token, password) {
+        try {
+            let tokenRecuperacion = await TokenRecuperacion.findOne({
+                user_id: userId
+            });
+            if (!tokenRecuperacion) {
+                throw new Error("El token no es válido o ha expirado");
+            }
+            const esValido = await bcrypt.compare(token, tokenRecuperacion.token);
+            if (!esValido) {
+                throw new Error("El token no es válido o ha expirado");
+            }
+            const hash = await bcrypt.hash(password, Number(bcryptSalt));
+            await Usuario.updateOne({
+                _id: userId
+            }, {
+                $set: {
+                    password: hash
+                }
+            }, {
+                new: true
+            });
+
+            await tokenRecuperacion.deleteOne();
+            return true;
+        } catch (err) {
+            return "error";
+        }
+
+    },
+
+    consultar() {
+        return Usuario.find({}).then((items) => {
+            return items;
+        }).catch((err) => {
+            console.log(err);
+            return "error";
+        })
+    },
+
+    consultarPorUsername(username) {
+        return Usuario.find({
+            username: username
+        }).then((items) => {
+            return items;
+        }).catch((err) => {
+            console.log(err);
+            return "error";
+        })
+    },
+
+    registrar(usuario) {
+        let nuevoUsuario = new Usuario(usuario);
+        return nuevoUsuario.save().then((usuarioCreado) => {
+                return usuarioCreado;
+            })
+            .catch((err) => {
+                console.log(err);
+                return err;
+            })
+    },
+
+    editar(usuario) {
+        return Usuario.findOne({
+            username: usuario.username,
+        }).then((usuarioEncontrado) => {
+            return bcrypt.compare(usuario.password, usuarioEncontrado.password).then((esValido) => {
+                if (esValido !== true) {
+                    throw new Error("Contraseña incorrecta");
+                }
+                usuario.password = usuarioEncontrado.password;
+                return Usuario.findOneAndUpdate({
+                    username: usuario.username,
+                }, usuario).then((actualizacion) => {
+                    return actualizacion;
+                }).catch((err) => {
+                    console.log(err);
+                    return "error";
+                });
+            })
+        }).catch((err) => {
+            if (typeof err.message !== "undefined" && err.message === "Contraseña incorrecta") {
+                return err.message;
+            } else if (err.message !== "undefined") {
+                return "Datos de inicio de sesión incorrectos";
+            }
+            return "error";
+        })
+    },
+
+    editarPassword(usuario) {
+        return Usuario.findOne({
+            username: usuario.username,
+        }).then((usuarioEncontrado) => {
+            return bcrypt.compare(usuario.password, usuarioEncontrado.password).then((esValido) => {
+                if (esValido !== true) {
+                    throw new Error("Contraseña incorrecta");
+                }
+                return Usuario.findOneAndUpdate({
+                    username: usuario.username,
+                }, {
+                    $set: {
+                        password: hash
+                    }
+                }).then((actualizacion) => {
+                    return actualizacion;
+                }).catch((err) => {
+                    console.log(err);
+                    return "error";
+                });
+            })
+        }).catch((err) => {
+            if (typeof err.message !== "undefined" && err.message === "Contraseña incorrecta") {
+                return err.message;
+            }
+            return "error";
+        })
+    },
+
+    eliminar(usuario) {
+        return Usuario.findOne({
+            username: usuario.username,
+        }).then((usuarioEncontrado) => {
+            return bcrypt.compare(usuario.password, usuarioEncontrado.password).then((esValido) => {
+                if (esValido !== true) {
+                    throw new Error("Contraseña incorrecta");
+                }
+                return Usuario.deleteOne({
+                    username: usuario.username
+                });
+            });
+        }).catch((err) => {
+            if (typeof err.message !== "undefined" && err.message === "Contraseña incorrecta") {
+                return err.message;
+            }
+            return "error";
+        })
+    },
+
+    /**Recibe un email y una contraseña, si son correctos devuelve al usuario */
+    comprobarPassword(email, password){
+        return Usuario.findOne({
+            correo_electronico: email,
+        }).then((usuario) => {
+            return bcrypt.compare(password, usuario.password).then((esValido) => {
+                if (esValido !== true) {
+                    throw new Error("Contraseña incorrecta");
+                }
+                return usuario;
+            })
+        }).catch((err) => {
+            if (typeof err.message !== "undefined" && err.message === "Contraseña incorrecta") {
+                return err.message;
+            } else if (err.message !== "undefined") {
+                return "Datos de inicio de sesión incorrectos";
+            }
+            return "error";
+        })
+    },
+
+    consultarPorUsername(username){
+        return Usuario.findOne({
+            username: username
+        }).then((usuario)=>{
+            return usuario;
+        }).catch((error)=>{
+            return "error";
+        })
+    }
+};
+
+module.exports = UsuarioService;
