@@ -163,4 +163,24 @@ PresupuestoController.consultarDivisas = async function (req, res) {
     return res;
 }
 
+PresupuestoController.crearMovimiento = async function (req, res) {
+
+    let insercion = await PresupuestoService.crearMovimiento(req.body);
+    if (insercion !== "OK") {
+        res.status(400);
+        res.json({
+            error: insercion
+        });
+        return res;
+    }
+
+    res.status(200);
+    res.json({
+        data: {
+            mensaje: "Movimiento añadido correctamente"
+        }
+    });
+    return res;
+}
+
 module.exports = PresupuestoController;

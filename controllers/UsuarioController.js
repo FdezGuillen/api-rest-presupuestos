@@ -12,10 +12,13 @@ const upload = multer({
     dest: 'uploads/'
 })
 
+/** Callback de inicio de sesión */
 UsuarioController.login = async function (req, res) {
+    // Obtiene los datos 
     let usuario = await UsuarioService.login(req.body.correo_electronico, req.body.password);
     usuario = JSON.parse(JSON.stringify(usuario));
-    usuario["accessToken"] = TokenService.createToken(usuario);
+    
+    //Gestión de errores
     if (usuario == "error") {
         res.status(400);
         res.json({
@@ -35,7 +38,14 @@ UsuarioController.login = async function (req, res) {
         });
         return res;
     }
+
+    //Genera un accessToken
+    usuario["accessToken"] = TokenService.createToken(usuario);
+
+    //Quita la contraseña del objeto antes de devolverla
     delete(usuario["password"]);
+
+    //Devuelve respuesta con los datos
     res.status(200);
     res.json({
         usuario: usuario,
@@ -89,8 +99,6 @@ UsuarioController.getUsuarios = async function (req, res) {
     let usuarios;
     if (typeof req.query.username !== "undefined") {
         usuarios = await UsuarioService.consultarPorUsername(req.query.username);
-    } else {
-        usuarios = await UsuarioService.consultar();
     }
 
     if (usuarios == "error") {
@@ -121,11 +129,14 @@ UsuarioController.postUsuarios = async function (req, res) {
         if (insercion.code === 11000) {
             if (insercion.keyPattern['username'] === 1) {
                 res.json({
-                    error: "Ya existe un usuario con username " + insercion.keyValue['username'] + ". Elige otro username"
+                    error: "Ya existe un usuario con username " + insercion.keyValue['username'] 
+                    + ". Elige otro username"
                 });
             } else if (insercion.keyPattern['correo_electronico'] === 1) {
                 res.json({
-                    error: "Ya existe un usuario con correo electrónico " + insercion.keyValue['correo_electronico'] + ". Elige otro correo electrónico"
+                    error: "Ya existe un usuario con correo electrónico " 
+                    + insercion.keyValue['correo_electronico'] 
+                    + ". Elige otro correo electrónico"
                 });
             }
         } else {
@@ -149,6 +160,8 @@ UsuarioController.postUsuarios = async function (req, res) {
 UsuarioController.putUsuarios = async function (req, res) {
     let usuario = req.body;
     let file = req.files;
+
+    //Reduce la imagen recibida y la convierte a base64
     if (file.length == 1) {
         let imagen = await ImageService.reducirImagen(file[0].buffer);
         usuario["imagen_perfil"] = imagen.toString('base64');

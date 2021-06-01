@@ -16,8 +16,8 @@ router.get('/usuario', middleware.ensureAuthenticated, UsuarioController.getUsua
 router.post('/usuario', UsuarioController.postUsuarios);
 router.put('/usuario/password', middleware.ensureAuthenticated, UsuarioController.putPassword);
 router.post('/usuario/actualizar', middleware.ensureAuthenticated, UsuarioController.putUsuarios);
-router.post('/usuario/eliminar', middleware.ensureAuthenticated, UsuarioController.deleteUsuarios); // Es un post para enviar cuerpo
-// router.delete('/usuario', middleware.ensureAuthenticated, UsuarioController.deleteUsuarios);
+router.post('/usuario/eliminar', middleware.ensureAuthenticated, UsuarioController.deleteUsuarios); 
+
 
 //CATEGORIAS DE USUARIOS
 router.get('/categorias', middleware.ensureAuthenticated, CategoriaController.consultarCategorias);
@@ -29,7 +29,9 @@ router.delete('/categorias', middleware.ensureAuthenticated, CategoriaController
 router.get('/presupuestos', middleware.ensureAuthenticated, PresupuestoController.consultarPresupuestos);
 router.get('/presupuestos/divisas', PresupuestoController.consultarDivisas);
 router.post('/presupuestos', middleware.ensureAuthenticated, PresupuestoController.crearPresupuesto);
+router.post('/presupuestos/movimiento', middleware.ensureAuthenticated, PresupuestoController.crearMovimiento);
 router.put('/presupuestos', middleware.ensureAuthenticated, PresupuestoController.editarPresupuesto);
 router.delete('/presupuestos', middleware.ensureAuthenticated, PresupuestoController.eliminarPresupuesto);
 
 module.exports = router;
+

@@ -13,14 +13,23 @@ const clientURL = process.env.CLIENT_URL;
 
 var UsuarioService = {
 
+    /**Recibe un email y contraseña, devuelve los datos de ese usuario */
     login(email, password) {
+
+        //Consulta si el usuario con ese email existe
         return Usuario.findOne({
             correo_electronico: email,
         }).then((usuario) => {
+
+            // Compara la contraseña recibida con la que esta guardada. Puesto que la contraseña 
+            // que se recibe no está encriptada y la que está en la base de datos sí, se
+            // compara con bcrypt.compare
             return bcrypt.compare(password, usuario.password).then((esValido) => {
                 if (esValido !== true) {
                     throw new Error("Contraseña incorrecta");
                 }
+
+                //Devuelve datos del usuario
                 return usuario;
             })
         }).catch((err) => {
@@ -33,27 +42,37 @@ var UsuarioService = {
         })
     },
 
+    /**Recibe un email y permite recuperar su cuenta */
     recuperarCuenta: async function (email) {
         try {
-
+            // Obtiene los datos del usuario
             let usuario = await Usuario.findOne({
                 correo_electronico: email,
             });
+
+            // Comprueba si existe un token de recuperación anterior, de ser así,
+            // lo elimina
             let token = TokenRecuperacion.findOne({
                 user_id: usuario._id
             })
             await token.deleteOne();
+
+            // Genera un token encriptado que permitirá a quien lo reciba resetear
+            // la contraseña de la cuenta
             let resetToken = crypto.randomBytes(32).toString("hex");
             const hash = await bcrypt.hash(resetToken, Number(bcryptSalt));
 
+            // Guarda el token en la base de datos para poder comprobarlo más tarde
             await new TokenRecuperacion({
                 user_id: usuario._id,
                 token: hash,
                 createdAt: Date.now(),
             }).save();
-            // const link = `http://localhost://8080/passwordReset?token=${resetToken}&id=${usuario._id}`;
+
+            //Con el token, se genera un string con la url de recuperación de la contraseña
             const link = `${clientURL}/passwordReset?token=${resetToken}&id=${usuario._id}`;
 
+            // Se devuelven los datos
             return {
                 correo_electronico: usuario.correo_electronico,
                 username: usuario.username,
@@ -116,6 +135,8 @@ var UsuarioService = {
         })
     },
 
+    /**Recibe datos de usuario y devuelve una promesa que se completará 
+     * al insertar en bbdd */
     registrar(usuario) {
         let nuevoUsuario = new Usuario(usuario);
         return nuevoUsuario.save().then((usuarioCreado) => {

@@ -18,6 +18,7 @@ const enviarEmail = async (email, subject, payload, template) => {
       },
     });
 
+    // Se compila plantilla del correo electrónico y otras opciones
     const source = fs.readFileSync(path.join(__dirname, template), "utf8");
     const compiledTemplate = handlebars.compile(source);
     const options = () => {
@@ -29,7 +30,7 @@ const enviarEmail = async (email, subject, payload, template) => {
       };
     };
 
-    // Send email
+    // Enviar email
     transporter.sendMail(options(), (error, info) => {
       if (error) {
         return error;
@@ -39,19 +40,10 @@ const enviarEmail = async (email, subject, payload, template) => {
         success: true,
       });
     });
+
   } catch (error) {
     return error;
   }
 };
-
-/*
-Example:
-sendEmail(
-  "youremail@gmail.com,
-  "Email subject",
-  { name: "Eze" },
-  "./templates/layouts/main.handlebars"
-);
-*/
 
 module.exports = enviarEmail;

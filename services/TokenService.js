@@ -1,4 +1,3 @@
-// services.js
 var jwt = require('jwt-simple');
 var moment = require('moment');
 var path = require('path');
@@ -13,3 +12,8 @@ exports.createToken = function(user) {
   };
   return jwt.encode(payload, config.TOKEN_SECRET);
 };
+
+
+
+
+

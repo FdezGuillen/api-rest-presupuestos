@@ -2,6 +2,7 @@
 var sharp = require('sharp');
 const sizeOf = require('image-size')
 
+/** Recibe un buffer con la imagen y reduce su tamaño manteniendo el ratio */ 
 exports.reducirImagen = function (imagen) {
     let dimensionesActuales = sizeOf(imagen);
 
@@ -18,11 +19,11 @@ exports.reducirImagen = function (imagen) {
 
     return sharp(imagen).resize(nuevoTamanyo).toBuffer()
         .then((nuevaImagen) => {
-            console.log("Image Resized");
             return nuevaImagen;
         })
         .catch((err) => {
-            console.log("Got Error");
+            console.log(err);
             return "error";
         });
 };
+

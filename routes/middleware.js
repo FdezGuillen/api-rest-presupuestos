@@ -5,7 +5,8 @@ var appRootDir = require('app-root-dir').get();
 var config = require(path.join(appRootDir,'config'));
 
 exports.ensureAuthenticated = function (req, res, next) {
-    console.log(req.headers["x-access-token"]);
+    
+    //Si la petición no lleva token, devuelve error
     if (!req.headers["x-access-token"]) {
        
         return res
@@ -14,6 +15,8 @@ exports.ensureAuthenticated = function (req, res, next) {
                 message: "Acceso no autorizado. Inicia sesión primero"
             });
     }
+
+    //Decodifica el token y si la sesión ha expirado, devuelve error
     var token = req.headers["x-access-token"];
     var payload = jwt.decode(token, config.TOKEN_SECRET);
 
@@ -25,5 +28,9 @@ exports.ensureAuthenticated = function (req, res, next) {
             });
     }
     req.user = payload.sub;
+
+    // En este punto se ha comprobado que el token es correcto. Se 
+    // permite que el resto del código se siga ejecutando
     next();
 }
+

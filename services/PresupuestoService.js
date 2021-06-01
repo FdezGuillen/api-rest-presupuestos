@@ -42,20 +42,20 @@ var PresupuestoService = {
                 }
             },
 
-            
+
         ]).then((presupuestos) => {
 
             let presupuesto = presupuestos[0];
             return Movimiento.find({
                 presupuesto: presupuesto._id,
                 tipo: "gasto"
-            }).then((gastos)=>{
+            }).then((gastos) => {
                 presupuesto["gastos_reales"] = gastos;
 
                 return Movimiento.find({
                     presupuesto: presupuesto._id,
                     tipo: "ingreso"
-                }).then((ingreso)=>{
+                }).then((ingreso) => {
                     presupuesto["ingresos_reales"] = ingreso;
                     return presupuesto;
                 })
@@ -125,31 +125,39 @@ var PresupuestoService = {
                     'gastos_previstos': datos.gastos_previstos,
                     'ingresos_previstos': datos.ingresos_previstos,
                 }
-            },
-            {new: true}).then((res) => {
+            }, {
+                new: true
+            }).then((res) => {
                 let movimientos = [];
 
-                datos.gastos_reales.forEach((g)=>{
+                datos.gastos_reales.forEach((g) => {
                     g["presupuesto"] = datos._id;
+                    if (typeof g.fecha === "string") {
+                        g["fecha"] = new Date(g.fecha);
+                    }
+
                     g["usuario"] = usuario._id;
                     movimientos.push(g);
                 });
 
-                datos.ingresos_reales.forEach((g)=>{
+                datos.ingresos_reales.forEach((g) => {
                     g["presupuesto"] = datos._id;
+                    if (typeof g.fecha === "string") {
+                        g["fecha"] = new Date(g.fecha);
+                    }
                     g["usuario"] = usuario._id;
                     movimientos.push(g);
                 });
-                
+
                 return Movimiento.deleteMany({
                     presupuesto: datos._id,
                     usuario: usuario._id
-                }).then((res)=>{
-                    return Movimiento.insertMany(movimientos).then((res)=>{
+                }).then((res) => {
+                    return Movimiento.insertMany(movimientos).then((res) => {
                         return "OK";
                     })
                 })
-                
+
             });
         }).catch((err) => {
             console.log(err);
@@ -169,6 +177,18 @@ var PresupuestoService = {
             return "error";
         })
     },
+
+    crearMovimiento(datos) {
+        let movimiento = new Movimiento(datos);
+
+        return movimiento.save().then((res) => {
+            return "OK";
+
+        }).catch((err) => {
+            console.log(err);
+            return "No se ha podido guardar el movimiento. Inténtalo de nuevo más tarde.";
+        })
+    }
 };
 
 module.exports = PresupuestoService;
