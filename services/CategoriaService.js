@@ -6,6 +6,7 @@ var Categoria = require(path.join(appRootDir, "Models")).Categoria;
 
 var CategoriaService = {
 
+    /**Consulta categorías de un usuario */
     consultar(username) {
         return UsuarioService.consultarPorUsername(username).then((usuario)=>{
             if (typeof usuario._id === "undefined"){
@@ -20,6 +21,7 @@ var CategoriaService = {
         })
     },
 
+    /**Recibe datos de una categoría y la crea */
     crearCategoria(datos) {
         return UsuarioService.consultarPorUsername(datos.username).then((usuario)=>{
             if (typeof usuario._id === "undefined"){
@@ -54,6 +56,7 @@ var CategoriaService = {
         })
     },
 
+    /**Recibe datos de una categoría y la actualiza */
     editarCategoria(datos) {
         return UsuarioService.consultarPorUsername(datos.username).then((usuario)=>{
             if (typeof usuario._id === "undefined"){
@@ -77,6 +80,7 @@ var CategoriaService = {
         })
     },
 
+     /**Elimina una categoría */
     eliminarCategoria(username, nombre) {
         return UsuarioService.consultarPorUsername(username).then((usuario)=>{
             if (typeof usuario._id === "undefined"){

@@ -4,6 +4,7 @@ var appRootDir = require('app-root-dir').get();
 var PresupuestoService = require(path.join(appRootDir, "services/PresupuestoService"));
 var PresupuestoController = {};
 
+/**Consulta los presupuestos de un usuario y devuelve respuesta */
 PresupuestoController.consultarPresupuestos = async function (req, res) {
     let usuario = req.query.username;
     if (typeof usuario === "undefined") {
@@ -39,6 +40,7 @@ PresupuestoController.consultarPresupuestos = async function (req, res) {
     return res;
 }
 
+/**Crea presupuesto de un usuario y devuelve respuesta */
 PresupuestoController.crearPresupuesto = async function (req, res) {
     let datos = req.body;
     if (typeof datos.username === "undefined") {
@@ -70,6 +72,7 @@ PresupuestoController.crearPresupuesto = async function (req, res) {
     return res;
 }
 
+/**Edita presupuesto de un usuario y devuelve respuesta */
 PresupuestoController.editarPresupuesto = async function (req, res) {
     let datos = req.body;
     if (typeof datos.username === "undefined") {
@@ -106,6 +109,7 @@ PresupuestoController.editarPresupuesto = async function (req, res) {
     return res;
 }
 
+/**Elimina presupuesto de un usuario y devuelve respuesta */
 PresupuestoController.eliminarPresupuesto = async function (req, res) {
     let usuario = req.query.username;
     let id = req.query.id;
@@ -144,6 +148,7 @@ PresupuestoController.eliminarPresupuesto = async function (req, res) {
     return res;
 }
 
+/**Consulta todas las divisas de la base de datos y devuelve respuesta */
 PresupuestoController.consultarDivisas = async function (req, res) {
     let divisas = await PresupuestoService.consultarDivisas();
 
@@ -163,6 +168,7 @@ PresupuestoController.consultarDivisas = async function (req, res) {
     return res;
 }
 
+/**Crea un movimiento y devuelve respuesta */
 PresupuestoController.crearMovimiento = async function (req, res) {
 
     let insercion = await PresupuestoService.crearMovimiento(req.body);

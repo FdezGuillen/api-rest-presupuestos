@@ -4,6 +4,7 @@ var path = require('path');
 var appRootDir = require('app-root-dir').get();
 var config = require(path.join(appRootDir,'config'));
 
+/**Crea un token de autenticación */
 exports.createToken = function(user) {
   var payload = {
     sub: user._id,

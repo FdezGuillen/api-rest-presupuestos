@@ -4,6 +4,7 @@ var path = require('path');
 var appRootDir = require('app-root-dir').get();
 var config = require(path.join(appRootDir,'config'));
 
+// Middleware para peticiones con autenticación
 exports.ensureAuthenticated = function (req, res, next) {
     
     //Si la petición no lleva token, devuelve error

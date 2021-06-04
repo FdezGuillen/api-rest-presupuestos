@@ -8,6 +8,7 @@ var Movimiento = require(path.join(appRootDir, "Models")).Movimiento;
 
 var PresupuestoService = {
 
+     /**Consulta presupuestos por usuario */
     consultar(username) {
         return UsuarioService.consultarPorUsername(username).then((usuario) => {
             if (typeof usuario._id === "undefined") {
@@ -22,6 +23,7 @@ var PresupuestoService = {
         })
     },
 
+     /**Consulta datos de un presupuesto por su id */
     consultarPorId(id) {
         return Presupuesto.aggregate([{
                 $match: {
@@ -66,6 +68,7 @@ var PresupuestoService = {
         })
     },
 
+     /**Consulta divisas */
     consultarDivisas() {
         return Divisa.find({}).catch((err) => {
             console.log(err);
@@ -73,6 +76,7 @@ var PresupuestoService = {
         })
     },
 
+     /**Recibe datos de un presupuesto y lo guarda*/
     crearPresupuesto(datos) {
         return UsuarioService.consultarPorUsername(datos.username).then((usuario) => {
             if (typeof usuario._id === "undefined") {
@@ -106,6 +110,7 @@ var PresupuestoService = {
         })
     },
 
+     /**Recibe datos de un presupuesto y lo actualiza*/
     editarPresupuesto(datos) {
         return UsuarioService.consultarPorUsername(datos.username).then((usuario) => {
             if (typeof usuario._id === "undefined") {
@@ -135,13 +140,14 @@ var PresupuestoService = {
                     if (typeof g.fecha === "string") {
                         g["fecha"] = new Date(g.fecha);
                     }
-
+                    g["tipo"] = "gasto";
                     g["usuario"] = usuario._id;
                     movimientos.push(g);
                 });
 
                 datos.ingresos_reales.forEach((g) => {
                     g["presupuesto"] = datos._id;
+                    g["tipo"] = "ingreso";
                     if (typeof g.fecha === "string") {
                         g["fecha"] = new Date(g.fecha);
                     }
@@ -165,6 +171,7 @@ var PresupuestoService = {
         })
     },
 
+     /**Elimina un presupuesto por su id */
     eliminarPresupuesto(id) {
 
         return Presupuesto.deleteOne({
@@ -178,6 +185,7 @@ var PresupuestoService = {
         })
     },
 
+     /**Recibe datos de un movimiento y lo crea */
     crearMovimiento(datos) {
         let movimiento = new Movimiento(datos);
 

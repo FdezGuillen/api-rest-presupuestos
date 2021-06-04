@@ -4,6 +4,7 @@ var appRootDir = require('app-root-dir').get();
 var CategoriaService = require(path.join(appRootDir, "services/CategoriaService"));
 var CategoriaController = {};
 
+/**Consulta categorías del usuario y devuelve respuesta */
 CategoriaController.consultarCategorias = async function (req, res) {
     let usuario = req.query.username;
     if (typeof usuario === "undefined") {
@@ -33,6 +34,7 @@ CategoriaController.consultarCategorias = async function (req, res) {
     return res;
 }
 
+/**Crea una categoría de un usuario y devuelve respuesta */
 CategoriaController.crearCategoria = async function (req, res) {
     let datos = req.body;
     if (typeof datos.username === "undefined") {
@@ -70,6 +72,7 @@ CategoriaController.crearCategoria = async function (req, res) {
     return res;
 }
 
+/**Recibe datos de una categoría, la actualiza y devuelve respuesta */
 CategoriaController.editarCategoria = async function (req, res) {
     let datos = req.body;
     if (typeof datos.username === "undefined") {
@@ -107,6 +110,7 @@ CategoriaController.editarCategoria = async function (req, res) {
     return res;
 }
 
+/**Recibe usuario y nombre de categoría, la elimina y devuelve respuesta */
 CategoriaController.eliminarCategoria = async function (req, res) {
     let usuario = req.query.username;
     let nombre = req.query.nombre;

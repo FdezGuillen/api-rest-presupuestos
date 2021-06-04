@@ -53,6 +53,7 @@ UsuarioController.login = async function (req, res) {
     return res;
 }
 
+/**Inicia el proceso para cambiar contraseña olvidada. Envía un email con la ruta usando enviarEmail.js */
 UsuarioController.recuperarCuenta = async function (req, res) {
     let datosRecuperacion = await UsuarioService.recuperarCuenta(req.body.correo_electronico);
     if (datosRecuperacion == "error") {
@@ -77,6 +78,7 @@ UsuarioController.recuperarCuenta = async function (req, res) {
     return res;
 }
 
+/**Recibe una respuesta, la actualiza, elimina el token de recuperación y devuelve respuesta */
 UsuarioController.resetearPassword = async function (req, res) {
     let resultado = await UsuarioService.resetearPassword(req.body.user_id, req.body.token, req.body.password);
     if (resultado !== true) {
@@ -94,6 +96,7 @@ UsuarioController.resetearPassword = async function (req, res) {
     return res;
 }
 
+/**Responde con los datos de un usuario según su username */
 UsuarioController.getUsuarios = async function (req, res) {
 
     let usuarios;
@@ -116,6 +119,7 @@ UsuarioController.getUsuarios = async function (req, res) {
     return res;
 }
 
+/**Registra un usuario */
 UsuarioController.postUsuarios = async function (req, res) {
 
     let usuario = req.body;
@@ -157,6 +161,7 @@ UsuarioController.postUsuarios = async function (req, res) {
     return res;
 }
 
+/**Actualiza datos de un usuario */
 UsuarioController.putUsuarios = async function (req, res) {
     let usuario = req.body;
     let file = req.files;
@@ -187,6 +192,7 @@ UsuarioController.putUsuarios = async function (req, res) {
     return res;
 }
 
+/**Actualiza contraseña si la contraseña antigua proporcionada es correcta */
 UsuarioController.putPassword = async function (req, res) {
     let datos = req.body;
     if (typeof datos.password_nueva === "undefined" || datos.password_nueva.trim() === ""){
@@ -218,6 +224,7 @@ UsuarioController.putPassword = async function (req, res) {
     return res;
 }
 
+/**Elimina un usuario */
 UsuarioController.deleteUsuarios = async function (req, res) {
     let usuario = req.body;
     let eliminacion = await UsuarioService.eliminar(usuario);

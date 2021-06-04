@@ -84,6 +84,11 @@ var UsuarioService = {
 
     },
 
+    /**Recibe el id de un usuario, un token de recuperación de contraseña y una nueva contraseña
+     * Comprueba que el token exista (en otras palabras, que se haya iniciado antes el proceso para
+     * resetear contraseña)
+     * Si existe, actualiza la contraseña y elimina el token
+     */
     resetearPassword: async function (userId, token, password) {
         try {
             let tokenRecuperacion = await TokenRecuperacion.findOne({
@@ -115,6 +120,7 @@ var UsuarioService = {
 
     },
 
+    /**Consulta lista de usuarios */
     consultar() {
         return Usuario.find({}).then((items) => {
             return items;
@@ -124,6 +130,7 @@ var UsuarioService = {
         })
     },
 
+    /**Consulta usuario por username */
     consultarPorUsername(username) {
         return Usuario.find({
             username: username
@@ -148,6 +155,7 @@ var UsuarioService = {
             })
     },
 
+    /**Recibe datos de un usuario y lo actualiza */
     editar(usuario) {
         return Usuario.findOne({
             username: usuario.username,
@@ -176,6 +184,7 @@ var UsuarioService = {
         })
     },
 
+    /**Recibe datos de un usuario y actualiza su contraseña */
     editarPassword(usuario) {
         return Usuario.findOne({
             username: usuario.username,
@@ -205,6 +214,7 @@ var UsuarioService = {
         })
     },
 
+    /**Elimina un usuario */
     eliminar(usuario) {
         return Usuario.findOne({
             username: usuario.username,
@@ -246,6 +256,7 @@ var UsuarioService = {
         })
     },
 
+    /**Consulta usuario por username */
     consultarPorUsername(username){
         return Usuario.findOne({
             username: username
